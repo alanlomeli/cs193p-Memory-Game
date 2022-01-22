@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var emojis = ["🚘","🚂","🚌","✈️","🚲","🚐","🚃","🚠","🚢","🛶","🛺","🦼","🚑","🚜","🏎"]
+    @ObservedObject var viewModel: EmojiMemoryGame
+    @State var eMOJIS = ["🚘","🚂","🚌","✈️","🚲","🚐","🚃","🚠","🚢","🛶","🛺","🦼","🚑","🚜","🏎"]
     let tecMojis = ["⌚️","📱","💻","⌨️","🖨","💿","📷","🕹","💾","🖥","📺","📻","📟","🎞"]
     let blueMojis = ["🐬","🐳","🌐","🇺🇳","💎","🧊","🌊","🌎","❄️","💙","🇫🇲","🔵","🚾","🌀"]
     let natureMojis = ["🌿","🌹","🍎","🌻","🌸","🌳","🐢","🐣","🦎","🦚","🍁","🌧","☀️","🐇"]
@@ -19,46 +20,29 @@ struct ContentView: View {
         Text("Memorize!").font(.title)
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum:65))]) {
-                ForEach(emojis[0..<numberOfCardsShown], id: \.self){ emoji in //this 'emoji' is an argument of the function
-                    CardView(content: emoji).aspectRatio(2/3,contentMode:.fit)
+                ForEach(viewModel.cards){ card in
+                    CardView(card: card)
+                        .aspectRatio(2/3,contentMode:.fit)
+                        .onTapGesture(){
+                            viewModel.choose(card)
+                        }
                 }
             }
         }
         .foregroundColor(themeColor)
         Spacer()
         HStack {
-            //deleteCardButton
-            //Spacer()
-            //addCardButton
-            technologyThemeButton
+            //technologyThemeButton
             Spacer()
-            blueThemeButton
+            //blueThemeButton
             Spacer()
-            natureThemeButton
+            //natureThemeButton
         }.font(.largeTitle)
         .padding(.horizontal)
     }
     .padding(.horizontal)
 }
-    var deleteCardButton: some View {
-        Button {
-            if numberOfCardsShown > 1 {
-                numberOfCardsShown -= 1
-            }
-        } label: {
-                Image(systemName: "minus.circle")
-            }
-        }
-    
-    var addCardButton: some View {
-        Button {
-            if numberOfCardsShown < emojis.count {
-                numberOfCardsShown += 1
-            }
-        } label: {
-                Image(systemName: "plus.circle")
-            }
-        }
+/*
     var technologyThemeButton: some View {
         Button {
             themeColor = colorFromHex(hex: 0x757C88)
@@ -101,6 +85,7 @@ struct ContentView: View {
             .foregroundColor(colorFromHex(hex: 0x74B72E))
                   }
         }
+ */
     func colorFromHex(hex:Int) -> Color{
         return Color(red: Double((hex & 0xFF0000) >> 16) / 255.0,
                      green: Double((hex & 0x00FF00) >> 8) / 255.0,
@@ -110,24 +95,20 @@ struct ContentView: View {
     }
 
 struct CardView : View {
-    @State var isFaceUp: Bool = true //state turns the variable into a pointer to a boolean
-    var content: String
+    let card: MemoryGame<String>.Card
     var body : some View {
     ZStack {
         let shape = RoundedRectangle(cornerRadius: 20)
-        if isFaceUp {
+        if card.isFaceUp {
             shape.fill().foregroundColor(.white)
             shape.strokeBorder(lineWidth: 3)
-            Text(content).font(.largeTitle)
+            Text(card.content).font(.largeTitle)
+        } else if card.isMatched {
+            shape.opacity(0)
         } else {
             shape.fill()
         }
     }
-    .onTapGesture {
-        isFaceUp = !isFaceUp
-      }
-        
-
     }
 }
 struct ThemeButton : View {
@@ -147,8 +128,7 @@ struct ThemeButton : View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
-            ContentView().preferredColorScheme(.light)
-        }
+    let game = EmojiMemoryGame()
+            ContentView(viewModel: game).preferredColorScheme(.light)
     }
 }
