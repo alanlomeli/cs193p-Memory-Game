@@ -9,15 +9,14 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
-    @State var eMOJIS = ["🚘","🚂","🚌","✈️","🚲","🚐","🚃","🚠","🚢","🛶","🛺","🦼","🚑","🚜","🏎"]
-    let tecMojis = ["⌚️","📱","💻","⌨️","🖨","💿","📷","🕹","💾","🖥","📺","📻","📟","🎞"]
-    let blueMojis = ["🐬","🐳","🌐","🇺🇳","💎","🧊","🌊","🌎","❄️","💙","🇫🇲","🔵","🚾","🌀"]
-    let natureMojis = ["🌿","🌹","🍎","🌻","🌸","🌳","🐢","🐣","🦎","🦚","🍁","🌧","☀️","🐇"]
-    @State var themeColor: Color = Color.red
-    @State var numberOfCardsShown = 4;
     var body: some View {
     VStack {
-        Text("Memorize!").font(.title)
+        HStack {
+            Text("\(viewModel.getGameScore()) point(s)")
+            Spacer()
+        Text(viewModel.getThemeName()).font(.title)
+            .foregroundColor(viewModel.getThemeColor())
+        }
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum:65))]) {
                 ForEach(viewModel.cards){ card in
@@ -29,71 +28,27 @@ struct ContentView: View {
                 }
             }
         }
-        .foregroundColor(themeColor)
-        Spacer()
+        .foregroundColor(viewModel.getThemeColor())
         HStack {
-            //technologyThemeButton
             Spacer()
-            //blueThemeButton
+            Button(action: {
+                print("hello world")
+                viewModel.createMemoryGame()
+            },label:{
+                VStack{
+                Text("New Game")
+                Image(systemName: "gamecontroller")
+                }
+            })
+            
             Spacer()
-            //natureThemeButton
         }.font(.largeTitle)
         .padding(.horizontal)
     }
     .padding(.horizontal)
 }
-/*
-    var technologyThemeButton: some View {
-        Button {
-            themeColor = colorFromHex(hex: 0x757C88)
-            numberOfCardsShown = Int.random(in: 3..<tecMojis.count)
-            emojis = tecMojis
-            emojis.shuffle()
-        } label: {
-            VStack {
-                Image(systemName: "pc" )
-                Text("Technology").font(.title3)
-            }
-            .foregroundColor(colorFromHex(hex: 0x757C88))
-                  }
-        }
-    var blueThemeButton: some View {
-        Button {
-            themeColor = colorFromHex(hex: 0x63C5DA)
-            numberOfCardsShown = Int.random(in: 3..<blueMojis.count)
-            emojis = blueMojis
-            emojis.shuffle()
-        } label: {
-            VStack {
-                Image(systemName: "drop" )
-                Text("Blue").font(.title3)
-            }
-            .foregroundColor(colorFromHex(hex: 0x63C5DA))
-                  }
-        }
-    var natureThemeButton: some View {
-        Button {
-            themeColor = colorFromHex(hex: 0x74B72E)
-            numberOfCardsShown = Int.random(in: 3..<natureMojis.count)
-            emojis = natureMojis
-            emojis.shuffle()
-        } label: {
-            VStack {
-                Image(systemName: "tortoise" )
-                Text("Nature").font(.title3)
-            }
-            .foregroundColor(colorFromHex(hex: 0x74B72E))
-                  }
-        }
- */
-    func colorFromHex(hex:Int) -> Color{
-        return Color(red: Double((hex & 0xFF0000) >> 16) / 255.0,
-                     green: Double((hex & 0x00FF00) >> 8) / 255.0,
-                     blue: Double(hex & 0x0000FF) / 255.0
-                     )
-    }
-    }
-
+}
+    
 struct CardView : View {
     let card: MemoryGame<String>.Card
     var body : some View {
@@ -110,19 +65,6 @@ struct CardView : View {
         }
     }
     }
-}
-struct ThemeButton : View {
-    var themeName: String
-    var themeIcon: String
-    var themeColorHex: Int
-    var body : some View {
-        
-        Button (action :{
-            
-        }, label:{
-        })
-    }
-
 }
 
 
